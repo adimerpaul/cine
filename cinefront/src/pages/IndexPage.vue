@@ -1,0 +1,167 @@
+<template>
+  <q-page class="">
+    <div class="row">
+      <div v-for="f in peliculas" :key="f.id" class="col-12 col-sm-4 q-pa-xs">
+        <q-card >
+          <q-parallax
+            :src="url+'../imagenes/'+f.pelicula.imagen"
+            :height="300"
+          />
+          <q-card-section>
+            <q-btn
+              fab
+              @click="selecionarfuncion(f)"
+              color="primary"
+              icon="shopping_cart"
+              class="absolute"
+              style="top: 0; right: 12px; transform: translateY(-50%);"
+            />
+            <div class="row no-wrap items-center">
+              <div class="col text-h6 ellipsis">
+                {{f.pelicula.titulo}}
+              </div>
+              <div class="col-auto text-grey text-subtitle2 q-pt-md row no-wrap items-center">
+<!--                <q-icon name="paid" /> {{ f.precio }} Bs-->
+<!--                Multicines plaza-->
+              </div>
+            </div>
+            <q-rating v-model="f.pelicula.estrellas" :max="5" size="30px"  />
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+            <div class="text-subtitle1">
+<!--              <q-badge :label="f.tipo"/>-->
+              <q-badge :label="f.pelicula.clasificacion"/>
+              <q-badge :label="f.pelicula.tiempo+' min'"/>
+              <q-badge v-if="f.pelicula.estreno" label="ESTRENO" color="red-10"/>
+            </div>
+            <div class="text-subtitle2 text-grey">
+              Director: {{f.pelicula.director}}
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions>
+            <q-btn type="a" :href="f.pelicula.trailer" target="_blank"  icon="fa-brands fa-youtube" color="negative" label="trailer" />
+            <q-btn @click="selecionarfuncion(f)" color="primary" icon="paid" label="comprar"/>
+          </q-card-actions>
+        </q-card>
+      </div>
+    </div>
+    <q-dialog v-model="modalfunciones" full-width>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Fuciones disponibles 1/4  <q-btn flat round color="primary" icon="schedule"/> </div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-card>
+            <q-tabs v-model="tab" dense class="bg-grey-3" align="justify" narrow-indicator>
+<!--              <q-tab name="mails" label="Mails" />-->
+<!--              <q-tab name="alarms" label="Alarms" />-->
+<!--              <q-tab name="movies" label="Movies" />-->
+              <q-tab @click="cambio(f)" v-for="(f,i) in fechas" :key="i" :name="i" >
+                <div class="text-subtitle2">{{formatofecha(f.fecha,'ddd')}}</div>
+                <div class="text-subtitle">{{formatofecha(f.fecha,'DD MMM YYYY')}}</div>
+<!--                <pre>{{f.fecha}}</pre>-->
+              </q-tab>
+            </q-tabs>
+            <q-tab-panels v-model="tab" animated>
+              <q-tab-panel v-for="(f,i) in fechas" :key="i" :name="i">
+<!--                <div class="text-h6">{{ f.fecha }}</div>-->
+                  <q-card v-for="f in funcionesaelegir" :key="f.id">
+                    <q-card-section>
+                      <div class="text-h6">
+                        <q-badge v-if="f.sub" label="SUB" />
+                        <q-badge v-if="f.traducida" label="TRADUCIDA" color="secondary" />
+                        <q-badge :label="f.tipo" color="info"/>
+                      </div>
+                      <div class="text-subtitle2">
+                        {{f.hora.substring(0,5)}} - {{f.sala.nombre}} <q-btn color="primary" icon="paid" :label="f.precio+' Bs'" />
+                      </div>
+                    </q-card-section>
+<!--                    <q-card-section>-->
+<!--                      {{ f }}-->
+<!--                    </q-card-section>-->
+                  </q-card>
+              </q-tab-panel>
+            </q-tab-panels>
+          </q-card>
+        </q-card-section>
+        <q-card-actions align="right" class="bg-white text-teal">
+          <q-btn flat label="OK" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-page>
+</template>
+<script>
+import { date } from 'quasar'
+import moment from 'moment-timezone'
+export default{
+  data(){
+    return{
+      tab:'mails',
+      modalfunciones:false,
+      // stars:4,
+      url:process.env.API,
+      peliculas:[],
+      funciones:[],
+      funcionesaelegir:[],
+      fechas:[],
+    }
+  },
+  mounted() {
+    this.$q.loading.show()
+    this.$api.get('funcion').then(res=>{
+      this.$q.loading.hide()
+      this.peliculas=res.data
+    })
+  },
+  methods:{
+    formatofecha(dia,formato){
+      // 'MMMM - dddd'
+      // console.log(new Date())
+      // let date = date.extractDate(dia, 'YYYY-MM-DD')
+      let formattedString = date.formatDate(moment.tz(dia, "America/La_Paz"), formato, {
+        days: ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado' /* and all the rest of days - remember starting with Sunday */],
+        daysShort: ['Dom.', 'Lun.', 'Mar.', 'Mie.', 'Jue.', 'Vie.', 'Sab.' /* and all the rest of days - remember starting with Sunday */],
+        months: ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"],
+        monthsShort: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC",]
+      })
+      // console.log(formattedString)
+      return formattedString.toUpperCase()
+    },
+    selecionarfuncion(f){
+      this.$q.loading.show()
+      this.$api.get('funcion/'+f.pelicula_id).then(res=>{
+        this.funciones=res.data.funciones
+        this.fechas=res.data.fechas
+        console.log(this.fechas)
+        // console.log(this.funciones)
+        this.funcionesaelegir=[]
+        this.tab=0
+        this.funciones.forEach(r=>{
+          // console.log(r.fecha+'   -   '+this.fechas[0].fecha)
+          if (r.fecha==this.fechas[0].fecha){
+            this.funcionesaelegir.push(r)
+          }
+        })
+
+        this.modalfunciones=true
+        this.$q.loading.hide()
+      })
+    },
+    cambio(f){
+      // console.log(f)
+      this.funcionesaelegir=[]
+      this.funciones.forEach(r=>{
+        // console.log(r.fecha+'   -   '+f.fecha)
+        if (r.fecha==f.fecha){
+          this.funcionesaelegir.push(r)
+        }
+      })
+    }
+  }
+}
+</script>
