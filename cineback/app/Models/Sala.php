@@ -8,4 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sala extends Model
 {
     use HasFactory;
+    public function butacas(){
+        return $this->hasMany(Butaca::class);
+    }
 }

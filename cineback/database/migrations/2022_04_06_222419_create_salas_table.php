@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('salas', function (Blueprint $table) {
             $table->id();
             $table->string("nombre");
+            $table->integer("x");
+            $table->integer("y");
             $table->timestamps();
         });
     }

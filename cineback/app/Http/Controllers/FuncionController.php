@@ -62,6 +62,7 @@ class FuncionController extends Controller
             "funciones"=>Funcion::
                 whereDate('fecha','>=',now())
                 ->with('sala')
+                ->with('pelicula')
                 ->whereTime('hora','>=',now())
                 ->where('pelicula_id',$pelicula_id)->get(),
         ]);

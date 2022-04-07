@@ -4,6 +4,7 @@
       <div v-for="f in peliculas" :key="f.id" class="col-12 col-sm-4 q-pa-xs">
         <q-card >
           <q-parallax
+            @click="selecionarfuncion(f)"
             :src="url+'../imagenes/'+f.pelicula.imagen"
             :height="300"
           />
@@ -12,7 +13,7 @@
               fab
               @click="selecionarfuncion(f)"
               color="primary"
-              icon="shopping_cart"
+              icon="paid"
               class="absolute"
               style="top: 0; right: 12px; transform: translateY(-50%);"
             />
@@ -49,7 +50,7 @@
         </q-card>
       </div>
     </div>
-    <q-dialog v-model="modalfunciones" full-width>
+    <q-dialog v-model="modalfunciones" full-width full-height>
       <q-card>
         <q-card-section>
           <div class="text-h6">Fuciones disponibles 1/4  <q-btn flat round color="primary" icon="schedule"/> </div>
@@ -69,24 +70,122 @@
             <q-tab-panels v-model="tab" animated>
               <q-tab-panel v-for="(f,i) in fechas" :key="i" :name="i">
 <!--                <div class="text-h6">{{ f.fecha }}</div>-->
-                  <q-card v-for="f in funcionesaelegir" :key="f.id">
-                    <q-card-section>
-                      <div class="text-h6">
-                        <q-badge v-if="f.sub" label="SUB" />
-                        <q-badge v-if="f.traducida" label="TRADUCIDA" color="secondary" />
-                        <q-badge :label="f.tipo" color="info"/>
-                      </div>
-                      <div class="text-subtitle2">
-                        {{f.hora.substring(0,5)}} - {{f.sala.nombre}} <q-btn color="primary" icon="paid" :label="f.precio+' Bs'" />
-                      </div>
-                    </q-card-section>
-<!--                    <q-card-section>-->
-<!--                      {{ f }}-->
-<!--                    </q-card-section>-->
-                  </q-card>
+                <div class="row">
+                  <div class="col-12 col-sm-4" v-for="f in funcionesaelegir" :key="f.id">
+                    <q-card >
+                      <q-card-section>
+                        <div class="text-h6 text-center">
+                          <q-badge v-if="f.sub" label="SUB" />
+                          <q-badge v-if="f.traducida" label="TRADUCIDA" color="secondary" />
+                          <q-badge :label="f.tipo" color="info"/>
+                        </div>
+                        <div class="text-subtitle2 text-center">
+                          {{f.hora.substring(0,5)}} - {{f.sala.nombre}} <q-btn @click="frmentradas(f)" color="primary" icon="paid" :label="'Comprar '+f.precio+' Bs'" />
+                        </div>
+                      </q-card-section>
+                      <!--                    <q-card-section>-->
+                      <!--                      {{ f }}-->
+                      <!--                    </q-card-section>-->
+                    </q-card>
+                  </div>
+                </div>
+
               </q-tab-panel>
             </q-tab-panels>
           </q-card>
+        </q-card-section>
+        <q-card-actions align="right" class="bg-white text-teal">
+          <q-btn flat label="OK" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="modalcantidadentradas" full-width full-height>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Cantidad de entradas 2/4  <q-btn flat round color="primary" icon="local_activity"/> </div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-card>
+            <q-card >
+              <q-card-section>
+                <div class="text-h6 text-center">
+                  <div class="row">
+                    <div class="col-12 col-sm-4"></div>
+                    <div class="col-4 col-sm-1"><q-btn @click="entradasmas" color="positive"  icon="add_circle" /></div>
+                    <div class="col-4 col-sm-2"><div class="text-h5 text-center text-bold">{{cantidadentradas}}</div></div>
+                    <div class="col-4 col-sm-1"><q-btn @click="entradasmenos" color="negative"  icon="remove_circle" /></div>
+                    <div class="col-12 col-sm-4"></div>
+                    <div class="col-12">
+                      <div class="text-subtitle2 q-pt-md text-grey">Seleccion cuántas entradas desea para {{funcion.pelicula.titulo}}</div>
+                    </div>
+                    <div class="col-12">
+                      <div class="text-subtitle q-pt-md ">Monto {{funcion.precio*cantidadentradas}} Bs</div>
+                    </div>
+                    <div class="col-12 q-pt-md">
+                      <q-btn @click="frmsala" icon="movie" color="primary" label="continuar" />
+                    </div>
+                  </div>
+<!--                  <q-badge v-if="f.sub" label="SUB" />-->
+<!--                  <q-badge v-if="f.traducida" label="TRADUCIDA" color="secondary" />-->
+<!--                  <q-badge :label="f.tipo" color="info"/>-->
+                </div>
+<!--                <div class="text-subtitle2 text-center">-->
+<!--                  {{f.hora.substring(0,5)}} - {{f.sala.nombre}} <q-btn @click="frmentradas(f)" color="primary" icon="paid" :label="'Comprar '+f.precio+' Bs'" />-->
+<!--                </div>-->
+              </q-card-section>
+              <!--                    <q-card-section>-->
+              <!--                      {{ f }}-->
+              <!--                    </q-card-section>-->
+            </q-card>
+          </q-card>
+        </q-card-section>
+        <q-card-actions align="right" class="bg-white text-teal">
+          <q-btn flat label="OK" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="modalsala" full-width full-height>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Seleccionar asientos 3/4  <q-btn flat round color="primary" icon="movie"/> </div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+            <q-card >
+              <q-card-section class="q-pa-none q-ma-none">
+                <div class="text-h6 text-center">
+                  <div class="row">
+                    <div class="col-12">
+                      <q-banner class="bg-primary text-white text-center">
+                        PANTALLA
+                      </q-banner>
+                    </div>
+                    <div class="col-12">
+<!--                      <q-responsive :ratio="16/9">-->
+                        <div :style="'display: grid;grid-template-columns: '+generarx(funcion.sala.x)">
+                          <div v-for="b in funcion.sala.butacas" :key="b.id" class="grid-item">{{b.x}}{{b.y}}</div>
+                        </div>
+<!--                      </q-responsive>-->
+
+                    </div>
+                    <div class="col-12">
+                      <div class="text-subtitle2 q-pt-none "><pre>{{funcion.sala.butacas}}</pre></div>
+                    </div>
+                    <div class="col-12 q-pt-md">
+                      <q-btn icon="movie" color="primary" label="continuar" />
+                    </div>
+                  </div>
+                  <!--                  <q-badge v-if="f.sub" label="SUB" />-->
+                  <!--                  <q-badge v-if="f.traducida" label="TRADUCIDA" color="secondary" />-->
+                  <!--                  <q-badge :label="f.tipo" color="info"/>-->
+                </div>
+                <!--                <div class="text-subtitle2 text-center">-->
+                <!--                  {{f.hora.substring(0,5)}} - {{f.sala.nombre}} <q-btn @click="frmentradas(f)" color="primary" icon="paid" :label="'Comprar '+f.precio+' Bs'" />-->
+                <!--                </div>-->
+              </q-card-section>
+              <!--                    <q-card-section>-->
+              <!--                      {{ f }}-->
+              <!--                    </q-card-section>-->
+            </q-card>
         </q-card-section>
         <q-card-actions align="right" class="bg-white text-teal">
           <q-btn flat label="OK" v-close-popup />
@@ -103,10 +202,14 @@ export default{
     return{
       tab:'mails',
       modalfunciones:false,
+      modalsala:false,
+      modalcantidadentradas:false,
+      cantidadentradas:0,
       // stars:4,
       url:process.env.API,
       peliculas:[],
       funciones:[],
+      funcion:{},
       funcionesaelegir:[],
       fechas:[],
     }
@@ -119,6 +222,35 @@ export default{
     })
   },
   methods:{
+    generarx(num){
+      let t=''
+      for(let i=0;i<num;i++){
+        t+=' auto'
+      }
+      return t
+    },
+    entradasmas(){
+      if (this.cantidadentradas>=5){
+        this.$q.notify({
+          message:'Solo puedes comprar maximo 5 entradas',
+          color:'red',
+          icon:'error',
+        })
+        return false
+      }
+      this.cantidadentradas++
+    },
+    entradasmenos(){
+      if (this.cantidadentradas > 1){
+        this.cantidadentradas--
+      }
+    },
+    frmentradas(f){
+      this.funcion=f
+      this.modalfunciones=false
+      this.modalcantidadentradas=true
+      this.cantidadentradas=1
+    },
     formatofecha(dia,formato){
       // 'MMMM - dddd'
       // console.log(new Date())
@@ -161,7 +293,26 @@ export default{
           this.funcionesaelegir.push(r)
         }
       })
+    },
+    frmsala(){
+      this.modalcantidadentradas=false
+      this.modalsala=true
     }
   }
 }
 </script>
+<style>
+.grid-container {
+
+}
+.grid-item {
+  background-color: rgb(0,150,136);
+  color: white;
+  outline: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 5px;
+  font-size: 15px;
+  margin: 1px;
+  border: 2px;
+  text-align: center;
+}
+</style>

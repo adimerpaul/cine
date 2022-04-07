@@ -16,7 +16,7 @@ class SalaSeeder extends Seeder
     public function run()
     {
         DB::table("salas")->insert([
-            ["nombre"=>"SALA 1"]
+            ["nombre"=>"SALA 1","x"=>15,"y"=>3]
         ]);
     }
 }

@@ -13,6 +13,6 @@ class Funcion extends Model
         return $this->belongsTo(Pelicula::class);
     }
     public function sala(){
-        return $this->belongsTo(Sala::class);
+        return $this->belongsTo(Sala::class)->with('butacas');
     }
 }
