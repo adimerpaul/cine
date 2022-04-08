@@ -155,21 +155,25 @@
                 <div class="text-h6 text-center">
                   <div class="row">
                     <div class="col-12">
-                      <q-banner class="bg-primary text-white text-center">
-                        PANTALLA
+                      <q-banner class="bg-primary text-white text-center text-weight-bold">
+                        <div class="row">
+                          <div class="col-2"><q-btn icon="arrow_left" flat round/></div>
+                          <div class="col-8"><b>PANTALLA</b></div>
+                          <div class="col-2"><q-btn icon="arrow_right" flat round/></div>
+                        </div>
                       </q-banner>
                     </div>
                     <div class="col-12">
 <!--                      <q-responsive :ratio="16/9">-->
-                        <div :style="'display: grid;grid-template-columns: '+generarx(funcion.sala.x)">
-                          <div v-for="b in funcion.sala.butacas" :key="b.id" class="grid-item">{{b.x}}{{b.y}}</div>
+                        <div  auto-width :style="'overflow-x:auto;display: grid;grid-template-columns: '+generarx(funcion.sala.x)+';padding-bottom:10px'">
+                          <div @click="selecionarbutaca(b)" v-for="b in funcion.sala.butacas" :key="b.id" class="grid-item">{{b.x}}{{b.y}}</div>
                         </div>
 <!--                      </q-responsive>-->
 
                     </div>
-                    <div class="col-12">
-                      <div class="text-subtitle2 q-pt-none "><pre>{{funcion.sala.butacas}}</pre></div>
-                    </div>
+<!--                    <div class="col-12">-->
+<!--                      <div class="text-subtitle2 q-pt-none "><pre>{{funcion.sala.butacas}}</pre></div>-->
+<!--                    </div>-->
                     <div class="col-12 q-pt-md">
                       <q-btn icon="movie" color="primary" label="continuar" />
                     </div>
@@ -297,6 +301,9 @@ export default{
     frmsala(){
       this.modalcantidadentradas=false
       this.modalsala=true
+    },
+    selecionarbutaca(b){
+      console.log(b)
     }
   }
 }
@@ -311,8 +318,9 @@ export default{
   outline: 1px solid rgba(0, 0, 0, 0.8);
   padding: 5px;
   font-size: 15px;
-  margin: 1px;
-  border: 2px;
+  margin: 3px;
+  border-radius: 2px;
+  width: 3em;
   text-align: center;
 }
 </style>
